@@ -1,69 +1,21 @@
-const express = require('express');
-const fs = require('fs');
+// Require Dependencies
+const express = require("express");
+const fs = require("fs");
 const path = require('path');
-const PORT = 3001;
 
+// Initialize express app
 const app = express();
+const PORT = process.env.PORT || 3001;
 
-// GET request to pull notes.html
-app.get('*', (req, res) => {
-    // Let the client know that their request was received
-    res.sendFile(path.join(__dirname, '/public/index.html'))
-  
-    // Log our request to the terminal
-    console.info(`${req.method} request received`);
-  });
+// Setup data parsing
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
+app.use(express.static(__dirname));
 
-// GET request to pull notes.html
-app.get('/notes', (req, res) => {
-  // Let the client know that their request was received
-  res.sendFile(path.join(__dirname, '/public/notes.html'))
+//Require routes file
+require('./routes/routes')(app);
 
-  // Log our request to the terminal
-  console.info(`${req.method} request received`);
-});
-
-// GET request to read the db.json
-app.get('/api/notes', (req, res) => {
-  // Let the client know that their POST request was received
-
-fs.readFile('./db/db.json', 'utf8', function(err, data){
-  const newNote = req.body
-  if(err){
-    throw error;
-  } else {
-    const info = JSON.parse(data)
-  }
-})
-
-  // Log our request to the terminal
-  console.info(`${req.method} request received`);
-});
-
-app.post('/api/notes', (req, res) => {
-  // Let the client know that their POST request was received
-  fs.readFile('./db/db.json', 'utf8', function(err, data){
-    const newNote = req.body
-    if(err){
-      throw error;
-    } else {
-      const info = JSON.parse(data);
-
-      info.push(newNote)
-      fs.writeFile('./db/db.json', JSON.stringify(info), (err) => {
-        if(err) {
-          throw error;
-        } else {
-          res.send(info)
-        }
-      })
-    }
-  })
-
-  // Log our request to the terminal
-  console.info(`${req.method} request received`);
-});
-
-app.listen(PORT, () =>
-  console.log(`Express server listening on port ${PORT}!`)
-);
+// Setup listener
+app.listen(PORT, function() {
+    console.log("App listening on PORT: " + PORT);
+});  
